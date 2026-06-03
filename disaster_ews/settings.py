@@ -153,6 +153,7 @@ AXES_LOCKOUT_TEMPLATE = 'accounts/lockout.html'
 AXES_RESET_ON_SUCCESS = True
 AXES_ENABLE_ADMIN = False
 AXES_ENABLE_ACCESS_FAILURE_LOG = False
+AXES_ENABLED = False
 
 # JWT config
 from datetime import timedelta
