@@ -151,13 +151,13 @@ AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = 1
 AXES_LOCKOUT_TEMPLATE = 'accounts/lockout.html'
 AXES_RESET_ON_SUCCESS = True
-AXES_ENABLE_ADMIN = True
-AXES_ENABLE_ACCESS_FAILURE_LOG = True
+AXES_ENABLE_ADMIN = False
+AXES_ENABLE_ACCESS_FAILURE_LOG = False
 
 # JWT config
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(mins=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(hours=1),
     'ROTATE_REFRESH_TOKENS': True,
 }
