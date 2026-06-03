@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Sensor — LGU EWS{% endblock %}
+{% block nav_sensors %}active{% endblock %}
+{% block page_title %}<i class="bi bi-radar me-2 text-danger"></i>{{ action }} Sensor{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header bg-white">
+        <strong><i class="bi bi-radar me-2 text-danger"></i>{{ action }} Hazard Sensor</strong>
+      </div>
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Sensor Name *</label>
+              {{ form.name }}
+              <div class="form-text"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Hazard Type *</label>
+              {{ form.hazard_type }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Status *</label>
+              {{ form.status }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Municipality *</label>
+              {{ form.municipality }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Latitude *
+                <span class="badge bg-danger ms-1" style="font-size:.65rem;">CLASSIFIED</span>
+              </label>
+              {{ form.latitude }}
+              <div class="form-text text-danger small"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Longitude *
+                <span class="badge bg-danger ms-1" style="font-size:.65rem;">CLASSIFIED</span>
+              </label>
+              {{ form.longitude }}
+              <div class="form-text text-danger small"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Last Reading</label>
+              {{ form.last_reading }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Unit</label>
+              {{ form.unit }}
+            </div>
+          </div>
+
+          {% if form.errors %}
+          <div class="alert alert-danger mt-3">
+            <i class="bi bi-exclamation-triangle me-2"></i>Please correct the errors below.
+            {{ form.errors }}
+          </div>
+          {% endif %}
+
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-danger px-4">
+              <i class="bi bi-check-lg me-1"></i>{{ action }} Sensor
+            </button>
+            <a href="{% url 'sensor_list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

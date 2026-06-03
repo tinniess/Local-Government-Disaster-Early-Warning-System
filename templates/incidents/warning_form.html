@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Issue Warning — LGU EWS{% endblock %}
+{% block nav_warning %}active{% endblock %}
+{% block page_title %}<i class="bi bi-megaphone me-2 text-danger"></i>Issue Early Warning{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header bg-danger text-white"><strong><i class="bi bi-megaphone me-2"></i>Broadcast Early Warning</strong></div>
+      <div class="card-body p-4">
+        <form method="post">{% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12"><label class="form-label fw-semibold">Warning Title *</label>{{ form.title }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Alert Level *</label>{{ form.alert_level }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Municipality *<small class="text-muted"></small></label>{{ form.municipality }}</div>
+            <div class="col-12"><label class="form-label fw-semibold">Message *</label>{{ form.message }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Linked Incident</label>{{ form.incident }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Expires At</label>{{ form.expires_at }}</div>
+          </div>
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-danger px-4"><i class="bi bi-megaphone me-1"></i>Broadcast Warning</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

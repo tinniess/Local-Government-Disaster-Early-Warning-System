@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Evacuation Centers{% endblock %}
+{% block page_title %}<i class="bi bi-house-door me-2 text-danger"></i>Evacuation Centers{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <span class="text-muted small">{{ centers.count }} center{{ centers.count|pluralize }} registered</span>
+  {% if user.role == 'LGU_ADMIN' %}
+  <a href="{% url 'evacuation_create' %}" class="btn btn-danger btn-sm"><i class="bi bi-plus-circle me-1"></i>Add Center</a>
+  {% endif %}
+</div>
+<div class="row g-3">
+{% for c in centers %}
+<div class="col-md-6 col-lg-4">
+  <div class="card h-100">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <h6 class="fw-bold mb-0">{{ c.name }}</h6>
+        <span class="badge {% if c.status == 'OPEN' %}bg-success{% elif c.status == 'FULL' %}bg-danger{% elif c.status == 'CLOSED' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
+          {{ c.get_status_display }}
+        </span>
+      </div>
+      <div class="text-muted small mb-1"><i class="bi bi-geo-alt me-1"></i>{{ c.barangay }}, {{ c.municipality }}</div>
+      <div class="text-muted small mb-2"><i class="bi bi-building me-1"></i>{{ c.address }}</div>
+      {% if c.contact_person %}
+      <div class="text-muted small mb-2"><i class="bi bi-person me-1"></i>{{ c.contact_person }} — {{ c.contact_number }}</div>
+      {% endif %}
+      <div class="d-flex justify-content-between small mb-1">
+        <span>Occupancy</span>
+        <strong>{{ c.current_occupancy }} / {{ c.capacity }} <span class="text-muted">({{ c.occupancy_percentage }}%)</span></strong>
+      </div>
+      <div class="progress mb-2" style="height:6px;">
+        <div class="progress-bar {% if c.occupancy_percentage >= 90 %}bg-danger{% elif c.occupancy_percentage >= 70 %}bg-warning{% else %}bg-success{% endif %}"
+             style="width:{{ c.occupancy_percentage }}%"></div>
+      </div>
+      <div class="small text-success fw-semibold">{{ c.available_slots }} slots available</div>
+    </div>
+    {% if user.role == 'LGU_ADMIN' or user.role == 'DISPATCHER' %}
+    <div class="card-footer bg-white">
+      <a href="{% url 'evacuation_edit' c.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil me-1"></i>Update</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% empty %}
+<div class="col-12 text-center text-muted py-5">
+  <i class="bi bi-house-door d-block fs-1 mb-2"></i>No evacuation centers registered.
+  {% if user.role == 'LGU_ADMIN' %}
+  <br><a href="{% url 'evacuation_create' %}" class="btn btn-danger btn-sm mt-2"><i class="bi bi-plus-circle me-1"></i>Add First Center</a>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endblock %}

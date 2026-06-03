@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load incident_tags %}
+{% block title %}Early Warnings — LGU EWS{% endblock %}
+{% block nav_warnings %}active{% endblock %}
+{% block page_title %}<i class="bi bi-megaphone me-2 text-danger"></i>Early Warnings{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <span class="text-muted small">All broadcast warnings</span>
+  {% if user.role != 'PUBLIC' %}
+  <a href="{% url 'warning_create' %}" class="btn btn-danger btn-sm"><i class="bi bi-plus me-1"></i>Issue Warning</a>
+  {% endif %}
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Title</th><th>Level</th><th>Municipality</th><th>Issued By</th><th>Status</th><th>Issued</th><th>Expires</th><th></th></tr>
+      </thead>
+      <tbody>
+      {% for w in warnings %}
+      <tr>
+        <td><strong>{{ w.title }}</strong><div class="text-muted small">{{ w.message|truncatechars:60 }}</div></td>
+        <td>{% alert_badge w.alert_level %}</td>
+        <td>{{ w.municipality|default:"All Municipalities" }}</td>
+        <td class="small">{{ w.issued_by.username|default:"System" }}</td>
+        <td><span class="badge {% if w.is_active %}bg-success{% else %}bg-secondary{% endif %}">{% if w.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+        <td class="small text-muted">{{ w.created_at|date:"M d, Y H:i" }}</td>
+        <td class="small text-muted">{{ w.expires_at|date:"M d, Y H:i"|default:"—" }}</td>
+        <td><a href="{% url 'warning_detail' w.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox d-block fs-2 mb-2"></i>No warnings issued yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

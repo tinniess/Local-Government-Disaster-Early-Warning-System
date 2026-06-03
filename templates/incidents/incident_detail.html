@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load incident_tags %}
+{% block title %}{{ incident.title }} — LGU EWS{% endblock %}
+{% block page_title %}<i class="bi bi-file-text me-2 text-danger"></i>Incident Detail{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <strong>{{ incident.title }}</strong>
+        <div class="d-flex gap-2">
+          {% status_badge incident.status %}
+          {% severity_badge incident.severity %}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row g-3 mb-3">
+          <div class="col-md-4"><div class="text-muted small">Hazard Type</div><strong>{{ incident.get_hazard_type_display }}</strong></div>
+          <div class="col-md-4"><div class="text-muted small">Municipality</div><strong>{{ incident.municipality }}</strong></div>
+          <div class="col-md-4"><div class="text-muted small">Affected Population</div><strong>{{ incident.affected_population|default:"Unknown" }}</strong></div>
+          <div class="col-md-4"><div class="text-muted small">Reported By</div><strong>{{ incident.reported_by.username|default:"—" }}</strong></div>
+          <div class="col-md-4"><div class="text-muted small">Date Reported</div><strong>{{ incident.created_at|date:"M d, Y H:i" }}</strong></div>
+          <div class="col-md-4"><div class="text-muted small">Last Updated</div><strong>{{ incident.updated_at|date:"M d, Y H:i" }}</strong></div>
+        </div>
+        <div class="mb-3"><div class="text-muted small mb-1">Description</div><p>{{ incident.description }}</p></div>
+        <div><div class="text-muted small mb-1">Location Details</div><p>{{ incident.location_details }}</p></div>
+      </div>
+    </div>
+
+    {% if incident.images.all %}
+    <div class="card mt-3">
+      <div class="card-header bg-white"><strong><i class="bi bi-images me-2"></i>Hazard Images</strong></div>
+      <div class="card-body">
+        <div class="row g-3">
+          {% for img in incident.images.all %}
+          <div class="col-md-4">
+            <img src="{{ img.image.url }}" class="img-fluid rounded" style="height:160px;object-fit:cover;width:100%;">
+            {% if img.caption %}<div class="small text-muted mt-1">{{ img.caption }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header bg-white"><strong>Actions</strong></div>
+      <div class="card-body d-grid gap-2">
+        {% if user.role == 'LGU_ADMIN' or incident.reported_by == user %}
+        <a href="{% url 'incident_edit' incident.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil me-2"></i>Edit Incident</a>
+        {% endif %}
+        <a href="{% url 'warning_create' %}" class="btn btn-outline-warning">
+          <i class="bi bi-megaphone me-2"></i>Issue Warning
+        </a>
+        <a href="{% url 'incident_report' incident.pk %}"
+          class="btn btn-outline-secondary"
+          target="_blank">
+          <i class="bi bi-printer me-2"></i>Print Report
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </a>
+      </div>
+    </div>
+    {% if incident.sensor %}
+    <div class="card mt-3">
+      <div class="card-header bg-white"><strong><i class="bi bi-radar me-2"></i>Linked Sensor</strong></div>
+      <div class="card-body">
+        <a href="{% url 'sensor_detail' incident.sensor.pk %}"
+          class="fw-semibold text-decoration-none">
+          {{ incident.sensor.name }}
+        </a>
+        <div class="text-muted small">{{ incident.sensor.get_hazard_type_display }}</div>
+        <div class="mt-2">{% sensor_status_icon incident.sensor.status %} {{ incident.sensor.get_status_display }}</div>
+        {% if user.role == 'LGU_ADMIN' or user.role == 'DISPATCHER' %}
+        <div class="mt-2 small text-muted">{{ incident.sensor.last_reading }} {{ incident.sensor.unit }}</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load incident_tags %}
+{% block title %}Incident Report — {{ incident.title }}{% endblock %}
+{% block page_title %}<i class="bi bi-file-earmark-text me-2 text-danger"></i>Incident Report{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <span class="text-muted small">Printable incident report</span>
+  <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="bi bi-printer me-1"></i>Print</button>
+</div>
+<div class="card" id="print-area">
+  <div class="card-body p-4">
+    <div class="text-center border-bottom pb-3 mb-4">
+      <h4 class="fw-bold text-danger">LGU Disaster Early Warning System</h4>
+      <h5>Incident Report</h5>
+      <div class="text-muted small">Report #{{ incident.id }} — Generated {{ incident.updated_at|date:"F d, Y H:i" }}</div>
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-md-8"><div class="text-muted small">Incident Title</div><h5 class="fw-bold">{{ incident.title }}</h5></div>
+      <div class="col-md-4 text-md-end">
+        {% status_badge incident.status %} {% severity_badge incident.severity %}
+      </div>
+      <div class="col-md-4"><div class="text-muted small">Hazard Type</div><strong>{{ incident.get_hazard_type_display }}</strong></div>
+      <div class="col-md-4"><div class="text-muted small">Municipality</div><strong>{{ incident.municipality }}</strong></div>
+      <div class="col-md-4"><div class="text-muted small">Affected Population</div><strong>{{ incident.affected_population|default:"Unknown" }}</strong></div>
+      <div class="col-md-4"><div class="text-muted small">Reported By</div><strong>{{ incident.reported_by.get_full_name|default:incident.reported_by.username|default:"—" }}</strong></div>
+      <div class="col-md-4"><div class="text-muted small">Date Reported</div><strong>{{ incident.created_at|date:"F d, Y H:i" }}</strong></div>
+      <div class="col-md-4"><div class="text-muted small">Last Updated</div><strong>{{ incident.updated_at|date:"F d, Y H:i" }}</strong></div>
+      <div class="col-12"><div class="text-muted small">Location Details</div><p>{{ incident.location_details }}</p></div>
+      <div class="col-12"><div class="text-muted small">Description</div><p>{{ incident.description }}</p></div>
+    </div>
+    {% if incident.images.all %}
+    <div class="border-top pt-3 mb-3">
+      <h6 class="fw-bold mb-3">Hazard Images</h6>
+      <div class="row g-2">
+        {% for img in incident.images.all %}
+        <div class="col-md-4"><img src="{{ img.image.url }}" class="img-fluid rounded" style="height:150px;object-fit:cover;width:100%;"><div class="small text-muted mt-1">{{ img.caption }}</div></div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <div class="border-top pt-3 mt-3 row">
+      <div class="col-md-6"><div class="text-muted small mb-4">Prepared by</div><div class="border-top pt-2">{{ incident.reported_by.get_full_name|default:incident.reported_by.username|default:"Dispatcher" }}<br><span class="text-muted small">{{ incident.reported_by.role|default:"" }}</span></div></div>
+      <div class="col-md-6"><div class="text-muted small mb-4">Noted by</div><div class="border-top pt-2">LGU Administrator<br><span class="text-muted small">LGU Admin</span></div></div>
+    </div>
+  </div>
+</div>
+<style>@media print{.sidebar,.topbar,.btn{display:none!important}.main-content{margin-left:0!important}}</style>
+{% endblock %}

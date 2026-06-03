@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load incident_tags %}
+{% block title %}{{ sensor.name }}{% endblock %}
+{% block nav_sensors %}active{% endblock %}
+{% block page_title %}<i class="bi bi-radar me-2 text-danger"></i>Sensor Detail{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <strong>{{ sensor.name }}</strong>
+        <span>{% sensor_status_icon sensor.status %} {{ sensor.get_status_display }}</span>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="text-muted small">Hazard Type</div><strong>{{ sensor.get_hazard_type_display }}</strong></div>
+          <div class="col-md-6"><div class="text-muted small">Municipality</div><strong>{{ sensor.municipality }}</strong></div>
+          <div class="col-md-6">
+            <div class="text-muted small">Last Reading</div>
+            <strong class="fs-4">{{ sensor.last_reading|default:"—" }}</strong>
+            <span class="text-muted">{{ sensor.unit }}</span>
+          </div>
+          <div class="col-md-6"><div class="text-muted small">Last Updated</div><strong>{{ sensor.updated_at|date:"M d, Y H:i" }}</strong></div>
+          {% if user.role == 'LGU_ADMIN' or user.role == 'DISPATCHER' %}
+          <div class="col-md-6">
+            <div class="text-muted small">Latitude <span class="badge bg-danger" style="font-size:.6rem;">CLASSIFIED</span></div>
+            <strong class="font-monospace">{{ sensor.latitude }}</strong>
+          </div>
+          <div class="col-md-6">
+            <div class="text-muted small">Longitude <span class="badge bg-danger" style="font-size:.6rem;">CLASSIFIED</span></div>
+            <strong class="font-monospace">{{ sensor.longitude }}</strong>
+          </div>
+          {% else %}
+          <div class="col-12">
+            <div class="text-muted small">GPS Coordinates</div>
+            <span class="badge bg-secondary">*** MASKED — Authorized Personnel Only ***</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="card mt-3">
+      <div class="card-header bg-white"><strong><i class="bi bi-clipboard-data me-2"></i>Linked Incidents</strong></div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light"><tr><th>Title</th><th>Status</th><th>Severity</th><th>Date</th></tr></thead>
+          <tbody>
+          {% for i in linked_incidents %}
+          <tr>
+            <td><a href="{% url 'incident_detail' i.pk %}">{{ i.title|truncatechars:40 }}</a></td>
+            <td>{% status_badge i.status %}</td>
+            <td>{% severity_badge i.severity %}</td>
+            <td class="text-muted small">{{ i.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-center text-muted py-3">No linked incidents.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header bg-white"><strong>Status Indicator</strong></div>
+      <div class="card-body text-center py-4">
+        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+          style="width:100px;height:100px;background:{% if sensor.status == 'NORMAL' %}#d1e7dd{% elif sensor.status == 'WARNING' %}#fff3cd{% elif sensor.status == 'CRITICAL' %}#f8d7da{% else %}#e2e3e5{% endif %};">
+          <i class="bi bi-{% if sensor.status == 'NORMAL' %}check-circle-fill text-success{% elif sensor.status == 'WARNING' %}exclamation-triangle-fill text-warning{% elif sensor.status == 'CRITICAL' %}x-circle-fill text-danger{% else %}dash-circle-fill text-secondary{% endif %}" style="font-size:2.5rem;"></i>
+        </div>
+        <h4 class="fw-bold">{{ sensor.get_status_display }}</h4>
+        <p class="text-muted small">{{ sensor.get_hazard_type_display }} Sensor</p>
+        {% if sensor.last_reading is not None %}
+        <div class="display-6 fw-bold text-danger">{{ sensor.last_reading }}</div>
+        <div class="text-muted">{{ sensor.unit }}</div>
+        {% endif %}
+      </div>
+    </div>
+    {% if user.role == 'LGU_ADMIN' %}
+    <div class="card mt-3">
+      <div class="card-body d-grid gap-2">
+        <a href="{% url 'sensor_edit' sensor.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil me-2"></i>Edit Sensor</a>
+        <a href="{% url 'sensor_delete' sensor.pk %}" class="btn btn-outline-danger"><i class="bi bi-trash me-2"></i>Delete Sensor</a>
+      </div>
+    </div>
+    {% endif %}
+    <div class="card mt-3">
+      <div class="card-body">
+        <a href="{% url 'sensor_list' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-left me-2"></i>Back to Sensors</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

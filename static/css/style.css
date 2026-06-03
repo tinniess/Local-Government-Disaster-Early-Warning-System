@@ -1,0 +1,10 @@
+/* LGU EWS — Custom Styles */
+.fw-700 { font-weight: 700; }
+.fs-4 { font-size: 1.5rem !important; }
+.card { transition: box-shadow .2s; }
+.card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1) !important; }
+.btn { font-weight: 500; }
+.table-hover tbody tr:hover { background-color: rgba(220,53,69,.04); }
+.page-link { color: #c0392b; }
+.page-item.active .page-link { background: #c0392b; border-color: #c0392b; }
+.badge { letter-spacing: .02em; }

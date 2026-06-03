@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load incident_tags %}
+{% block title %}Sensors — LGU EWS{% endblock %}
+{% block nav_sensors %}active{% endblock %}
+{% block page_title %}<i class="bi bi-radar me-2 text-danger"></i>Hazard Sensors{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <span class="text-muted small">Real-time sensor network — {{ sensors.count }} sensor{{ sensors.count|pluralize }} registered</span>
+  {% if user.role == 'LGU_ADMIN' %}
+  <a href="{% url 'sensor_create' %}" class="btn btn-danger btn-sm">
+    <i class="bi bi-plus-circle me-1"></i>Add Sensor
+  </a>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Sensor Name</th>
+          <th>Hazard Type</th>
+          <th>Status</th>
+          <th>Municipality</th>
+          <th>Last Reading</th>
+          {% if user.role == 'LGU_ADMIN' or user.role == 'DISPATCHER' %}
+          <th>Coordinates <span class="badge bg-danger" style="font-size:.6rem;">CLASSIFIED</span></th>
+          {% endif %}
+          <th>Updated</th>
+          {% if user.role == 'LGU_ADMIN' %}
+          <th>Actions</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for sensor in sensors %}
+      <tr>
+        <td>
+          <a href="{% url 'sensor_detail' sensor.pk %}"
+            class="fw-bold text-decoration-none">
+              {{ sensor.name }}
+          </a>
+      </td>
+        <td><span class="badge bg-light text-dark border">{{ sensor.get_hazard_type_display }}</span></td>
+        <td>{% sensor_status_icon sensor.status %} {{ sensor.get_status_display }}</td>
+        <td>{{ sensor.municipality }}</td>
+        <td>
+          {% if sensor.last_reading is not None %}
+            <strong>{{ sensor.last_reading }}</strong> <span class="text-muted small">{{ sensor.unit }}</span>
+          {% else %}
+            <span class="text-muted">—</span>
+          {% endif %}
+        </td>
+        {% if user.role == 'LGU_ADMIN' or user.role == 'DISPATCHER' %}
+        <td class="text-muted small font-monospace">{{ sensor.latitude }}, {{ sensor.longitude }}</td>
+        {% endif %}
+        <td class="text-muted small">{{ sensor.updated_at|timesince }} ago</td>
+        {% if user.role == 'LGU_ADMIN' %}
+        <td>
+          <a href="{% url 'sensor_edit' sensor.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <a href="{% url 'sensor_delete' sensor.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+            <i class="bi bi-trash"></i>
+          </a>
+        </td>
+        {% endif %}
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" class="text-center text-muted py-5">
+          <i class="bi bi-radar d-block fs-1 mb-2"></i>
+          No sensors registered yet.
+          {% if user.role == 'LGU_ADMIN' %}
+          <br><a href="{% url 'sensor_create' %}" class="btn btn-danger btn-sm mt-2">
+            <i class="bi bi-plus-circle me-1"></i>Add First Sensor
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Resource{% endblock %}
+{% block page_title %}<i class="bi bi-box-seam me-2 text-danger"></i>{{ action }} Resource{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-7">
+<div class="card">
+  <div class="card-header bg-white"><strong>{{ action }} Resource</strong></div>
+  <div class="card-body p-4">
+    <form method="post">{% csrf_token %}
+      <div class="row g-3">
+        <div class="col-12"><label class="form-label fw-semibold">Resource Name *</label>{{ form.name }}</div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Type *</label>{{ form.resource_type }}</div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Status *</label>{{ form.status }}</div>
+        <div class="col-md-4"><label class="form-label fw-semibold">Quantity *</label>{{ form.quantity }}</div>
+        <div class="col-md-4"><label class="form-label fw-semibold">Unit</label>{{ form.unit }}</div>
+        <div class="col-md-4"><label class="form-label fw-semibold">Municipality *</label>{{ form.municipality }}</div>
+        <div class="col-12"><label class="form-label fw-semibold">Storage Location</label>{{ form.location }}</div>
+        <div class="col-12"><label class="form-label fw-semibold">Assigned Incident</label>{{ form.assigned_incident }}</div>
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-danger px-4"><i class="bi bi-check me-1"></i>{{ action }} Resource</button>
+        <a href="{% url 'resource_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+</div></div>
+{% endblock %}

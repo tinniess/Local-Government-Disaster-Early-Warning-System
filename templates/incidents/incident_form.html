@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Incident — LGU EWS{% endblock %}
+{% block nav_create %}active{% endblock %}
+{% block page_title %}<i class="bi bi-plus-circle me-2 text-danger"></i>{{ action }} Incident{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="card">
+      <div class="card-header bg-white"><strong>Incident Details</strong></div>
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Title *</label>{{ form.title }}
+              {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Hazard Type *</label>{{ form.hazard_type }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Severity *</label>{{ form.severity }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Municipality *</label>{{ form.municipality }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Linked Sensor</label>{{ form.sensor }}</div>
+            <div class="col-12"><label class="form-label fw-semibold">Description *</label>{{ form.description }}</div>
+            <div class="col-md-8"><label class="form-label fw-semibold">Location Details *</label>{{ form.location_details }}</div>
+            <div class="col-md-4"><label class="form-label fw-semibold">Affected Population</label>{{ form.affected_population }}</div>
+          </div>
+
+          <hr class="my-4">
+          <h6 class="fw-bold mb-3"><i class="bi bi-images me-2 text-danger"></i>Hazard Images</h6>
+          {{ formset.management_form }}
+          <div id="formset-container">
+          {% for img_form in formset %}
+          <div class="row g-2 align-items-center mb-2 formset-row border rounded p-2 bg-light">
+            {{ img_form.id }}
+            <div class="col-md-6"><label class="form-label small fw-semibold">Image</label>{{ img_form.image }}</div>
+            <div class="col-md-5"><label class="form-label small fw-semibold">Caption</label>{{ img_form.caption }}</div>
+            <div class="col-md-1 d-flex align-items-end pb-1">
+              {% if img_form.instance.pk %}
+              <div class="form-check">{{ img_form.DELETE }}<label class="form-check-label small text-danger">Del</label></div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-danger px-4"><i class="bi bi-check-lg me-1"></i>{{ action }} Incident</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

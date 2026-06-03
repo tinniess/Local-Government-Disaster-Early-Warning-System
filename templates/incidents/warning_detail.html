@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Warning Detail{% endblock %}
+
+{% block page_title %}
+<i class="bi bi-megaphone-fill me-2 text-warning"></i>Warning Detail
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white">
+        <strong>{{ warning.title }}</strong>
+    </div>
+
+    <div class="card-body">
+        <div class="mb-3">
+            <div class="text-muted small">Message</div>
+            <p>{{ warning.message }}</p>
+        </div>
+
+        <div class="mb-3">
+            <div class="text-muted small">Severity</div>
+            <strong>{{ warning.severity }}</strong>
+        </div>
+
+        <div class="mb-3">
+            <div class="text-muted small">Created</div>
+            <strong>{{ warning.created_at }}</strong>
+        </div>
+
+        <a href="{% url 'warning_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Warnings
+        </a>
+        <a href="{% url 'warning_resolve' warning.pk %}" class="btn btn-danger">
+            <i class="bi bi-check-circle me-2"></i>Resolve Warning
+        </a>
+    </div>
+</div>
+{% endblock %}

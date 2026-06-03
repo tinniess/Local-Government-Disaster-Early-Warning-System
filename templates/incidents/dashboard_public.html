@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load incident_tags %}
+{% block title %}Public Dashboard — LGU EWS{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block page_title %}<i class="bi bi-globe me-2 text-danger"></i>Public Situational Dashboard{% endblock %}
+{% block content %}
+
+{% for w in active_warnings %}
+<div class="warning-banner {% if w.alert_level == 'CRITICAL' or w.alert_level == 'DANGER' %}danger{% endif %} d-flex align-items-start gap-3 mb-2">
+  <i class="bi bi-megaphone-fill fs-5 mt-1 flex-shrink-0"></i>
+  <div class="flex-grow-1">
+    <strong>{% alert_badge w.alert_level %} {{ w.title }}</strong>
+    <div class="small mt-1">{{ w.message|truncatechars:140 }}{% if w.municipality %} — <em>{{ w.municipality }}</em>{% endif %}</div>
+  </div>
+  <small class="text-muted text-nowrap">{{ w.created_at|timesince }} ago</small>
+</div>
+{% endfor %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card h-100"><div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon bg-danger bg-opacity-10"><i class="bi bi-fire text-danger fs-4"></i></div>
+      <div><div class="fw-bold fs-3 lh-1">{{ stats.active }}</div><div class="text-muted small">Active Incidents</div></div>
+    </div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card h-100"><div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon bg-warning bg-opacity-10"><i class="bi bi-exclamation-triangle text-warning fs-4"></i></div>
+      <div><div class="fw-bold fs-3 lh-1">{{ alert_levels.count }}</div><div class="text-muted small">Active Alerts</div></div>
+    </div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card h-100"><div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon bg-success bg-opacity-10"><i class="bi bi-house-door text-success fs-4"></i></div>
+      <div><div class="fw-bold fs-3 lh-1">{{ open_centers }}</div><div class="text-muted small">Open Evacuation Centers</div></div>
+    </div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card h-100"><div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon bg-info bg-opacity-10"><i class="bi bi-radar text-info fs-4"></i></div>
+      <div><div class="fw-bold fs-3 lh-1">{{ sensor_warnings }}</div><div class="text-muted small">Sensors Warning/Critical</div></div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header bg-white d-flex justify-content-between">
+        <strong><i class="bi bi-list-ul me-2 text-danger"></i>Active Incidents</strong>
+        <a href="{% url 'citizen_report_create' %}" class="btn btn-danger btn-sm" target="_blank"><i class="bi bi-megaphone me-1"></i>Report an Emergency</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light"><tr><th>Title</th><th>Hazard</th><th>Status</th><th>Municipality</th><th>Date</th></tr></thead>
+          <tbody>
+          {% for incident in incidents %}
+          <tr>
+            <td><strong>{{ incident.title|truncatechars:40 }}</strong></td>
+            <td><span class="badge bg-light text-dark border">{{ incident.get_hazard_type_display }}</span></td>
+            <td>{% status_badge incident.status %}</td>
+            <td>{{ incident.municipality }}</td>
+            <td class="text-muted small">{{ incident.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center text-muted py-4"><i class="bi bi-check-circle text-success d-block fs-2 mb-2"></i>No active incidents. All clear.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header bg-white"><strong><i class="bi bi-traffic-light me-2 text-danger"></i>Alert Levels</strong></div>
+      <div class="card-body p-2">
+        {% for l in alert_levels %}
+        <div class="d-flex align-items-center gap-2 p-2 border-bottom">
+          <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width:36px;height:36px;font-size:.65rem;flex-shrink:0;background:{% if l.level == 'RED' %}#dc3545{% elif l.level == 'ORANGE' %}#fd7e14{% elif l.level == 'YELLOW' %}#ffc107{% else %}#198754{% endif %};">{{ l.level }}</div>
+          <div><div class="fw-semibold small">{{ l.municipality }}</div><div class="text-muted" style="font-size:.75rem;">{{ l.get_hazard_type_display }}</div></div>
+        </div>
+        {% empty %}
+        <div class="text-center text-muted py-3 small">All areas at normal status</div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header bg-white"><strong><i class="bi bi-house-door me-2 text-danger"></i>Evacuation Centers</strong></div>
+      <div class="card-body p-2">
+        {% for c in evacuation_centers %}
+        <div class="p-2 border-bottom">
+          <div class="d-flex justify-content-between">
+            <span class="fw-semibold small">{{ c.name }}</span>
+            <span class="badge {% if c.status == 'OPEN' %}bg-success{% elif c.status == 'FULL' %}bg-danger{% else %}bg-secondary{% endif %} ms-1">{{ c.get_status_display }}</span>
+          </div>
+          <div class="text-muted" style="font-size:.75rem;">{{ c.barangay }}, {{ c.municipality }}</div>
+          <div class="progress mt-1" style="height:4px;">
+            <div class="progress-bar {% if c.occupancy_percentage >= 90 %}bg-danger{% elif c.occupancy_percentage >= 70 %}bg-warning{% else %}bg-success{% endif %}" style="width:{{ c.occupancy_percentage }}%"></div>
+          </div>
+          <div style="font-size:.72rem;" class="text-muted">{{ c.available_slots }} slots available</div>
+        </div>
+        {% empty %}
+        <div class="text-center text-muted py-3 small">No centers registered</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

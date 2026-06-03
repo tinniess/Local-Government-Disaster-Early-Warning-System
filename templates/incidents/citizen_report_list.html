@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Citizen Reports{% endblock %}
+{% block page_title %}<i class="bi bi-people me-2 text-danger"></i>Citizen Reports{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <a href="?status=" class="btn btn-sm {% if not status_filter %}btn-danger{% else %}btn-outline-secondary{% endif %}">All</a>
+        <a href="?status=PENDING" class="btn btn-sm {% if status_filter == 'PENDING' %}btn-warning{% else %}btn-outline-warning{% endif %}">Pending</a>
+        <a href="?status=VERIFIED" class="btn btn-sm {% if status_filter == 'VERIFIED' %}btn-success{% else %}btn-outline-success{% endif %}">Verified</a>
+        <a href="?status=REJECTED" class="btn btn-sm {% if status_filter == 'REJECTED' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">Rejected</a>
+        <a href="?status=RESOLVED" class="btn btn-sm {% if status_filter == 'RESOLVED' %}btn-primary{% else %}btn-outline-primary{% endif %}">Resolved</a>
+    </div>
+
+    {% if user.role == 'LGU_ADMIN' %}
+        <a href="{% url 'citizen_report_create' %}" class="btn btn-danger btn-sm">
+            <i class="bi bi-plus-circle me-1"></i>Add Report
+        </a>
+    {% endif %}
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Type</th><th>Description</th><th>Location</th><th>Reporter</th><th>Photo</th><th>Status</th><th>Submitted</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+      {% for r in reports %}
+      <tr>
+        <td><span class="badge bg-light text-dark border">{{ r.get_report_type_display }}</span></td>
+        <td>{{ r.description|truncatechars:50 }}</td>
+        <td class="small">{{ r.barangay }}{% if r.barangay %}, {% endif %}{{ r.municipality }}</td>
+        <td class="small">{{ r.reporter_name }}<br><span class="text-muted">{{ r.reporter_contact }}</span></td>
+        <td>{% if r.photo %}<a href="{{ r.photo.url }}" target="_blank"><i class="bi bi-image text-primary"></i></a>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+        <td>
+          <span class="badge {% if r.status == 'PENDING' %}bg-warning text-dark{% elif r.status == 'VERIFIED' %}bg-success{% elif r.status == 'REJECTED' %}bg-secondary{% else %}bg-primary{% endif %}">
+            {{ r.get_status_display }}
+          </span>
+        </td>
+        <td class="small text-muted">{{ r.submitted_at|date:"M d, Y H:i" }}</td>
+        <td>
+          {% if r.status == 'PENDING' %}
+          <form method="post" action="{% url 'citizen_report_validate' r.pk %}" class="d-flex gap-1">
+            {% csrf_token %}
+            <button name="action" value="verify" class="btn btn-success btn-sm py-0 px-2" title="Verify"><i class="bi bi-check"></i></button>
+            <button name="action" value="reject" class="btn btn-danger btn-sm py-0 px-2" title="Reject"><i class="bi bi-x"></i></button>
+          </form>
+          {% elif r.status == 'VERIFIED' %}
+          <form method="post" action="{% url 'citizen_report_validate' r.pk %}">
+            {% csrf_token %}
+            <button name="action" value="resolve" class="btn btn-sm btn-outline-primary py-0 px-2">Resolve</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox d-block fs-2 mb-2"></i>No reports yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

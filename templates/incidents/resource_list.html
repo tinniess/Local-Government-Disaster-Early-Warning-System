@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Resources{% endblock %}
+{% block page_title %}<i class="bi bi-box-seam me-2 text-danger"></i>Resource Tracking{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <span class="text-muted small">{{ resources.count }} resource{{ resources.count|pluralize }} tracked</span>
+  {% if user.role == 'LGU_ADMIN' %}
+  <a href="{% url 'resource_create' %}" class="btn btn-danger btn-sm"><i class="bi bi-plus-circle me-1"></i>Add Resource</a>
+  {% endif %}
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Name</th><th>Type</th><th>Quantity</th><th>Status</th><th>Location</th><th>Municipality</th><th>Assigned To</th><th>Updated</th>
+        {% if user.role == 'LGU_ADMIN' %}<th>Actions</th>{% endif %}</tr>
+      </thead>
+      <tbody>
+      {% for r in resources %}
+      <tr>
+        <td><strong>{{ r.name }}</strong></td>
+        <td><span class="badge bg-light text-dark border">{{ r.get_resource_type_display }}</span></td>
+        <td>{{ r.quantity }} <span class="text-muted small">{{ r.unit }}</span></td>
+        <td>
+          <span class="badge {% if r.status == 'AVAILABLE' %}bg-success{% elif r.status == 'DEPLOYED' %}bg-primary{% elif r.status == 'MAINTENANCE' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+            {{ r.get_status_display }}
+          </span>
+        </td>
+        <td class="small">{{ r.location|default:"—" }}</td>
+        <td class="small">{{ r.municipality }}</td>
+        <td class="small text-muted">
+          {% if r.assigned_incident %}
+          <a href="{% url 'incident_detail' r.assigned_incident.pk %}">{{ r.assigned_incident.title|truncatechars:25 }}</a>
+          {% else %}—{% endif %}
+        </td>
+        <td class="small text-muted">{{ r.updated_at|timesince }} ago</td>
+        {% if user.role == 'LGU_ADMIN' %}
+        <td><a href="{% url 'resource_edit' r.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a></td>
+        {% endif %}
+      </tr>
+      {% empty %}
+      <tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-box-seam d-block fs-2 mb-2"></i>No resources tracked yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
